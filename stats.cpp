@@ -1,4 +1,8 @@
 #include "stats.h"
+#include <cmath>
+
+EmailAlertSent Emailsent;
+LedAlertSent LedOn;
 
 Stats compute_statistics(const float* numberset, int setlength) {
     Stats s;
@@ -6,7 +10,14 @@ Stats compute_statistics(const float* numberset, int setlength) {
     s.min = 0;
     s.max = 0;
     int i = 0;
-    int sum = 0;
+    float sum = 0.0;
+    if(numberset == NULL)
+    {
+        s.average = NAN;
+        s.min = NAN;
+        s.max = NAN;
+        return s;
+    }
 
     if(0 == setlength%2)
     {
@@ -57,15 +68,38 @@ Stats compute_statistics(const float* numberset, int setlength) {
 
     for(i=0; i<setlength; i++)
     {
-            sum = numberset[i];
+            sum += numberset[i];
 
     }
-    s.average = sum/setlength;
+    s.average = sum/(float)setlength;
     return s;
 }
 
-int main()
+//Turning the LED on
+void emailAlerter(void)
 {
+    printf("inside 1\n");
+   Emailsent.emailAlertSent = true;
+}
 
-    return 0;
+// Email alert sent
+void ledAlerter(void)
+{
+    printf("inside 2\n");
+    LedOn.ledAlertOn = true;
+}
+
+void check_and_alert(float maxThreshold, void (*alerter_funcptr[])(), Stats computedStats)
+{
+    int i=0;
+    bool result = false;
+    if(computedStats.max > maxThreshold)
+    {
+        printf("inside max threshold\n");
+        for(i=0; i<2; i++)
+        {
+            //alerters[i]);
+            (*alerter_funcptr[i])();
+        }
+    }
 }
